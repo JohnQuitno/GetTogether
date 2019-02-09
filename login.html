@@ -3,20 +3,35 @@
   <head>
     <title>Google Calendar API Quickstart</title>
     <meta charset="utf-8" />
+	
+	<script src="https://www.gstatic.com/firebasejs/5.8.2/firebase.js"></script>
+	<script>
+	  // Initialize Firebase
+	  var config = {
+		apiKey: "AIzaSyCvzWllTU02Y_FMjKkgMFzQHmUYgxPXX1U",
+		authDomain: "test-e9e28.firebaseapp.com",
+		databaseURL: "https://test-e9e28.firebaseio.com",
+		projectId: "test-e9e28",
+		storageBucket: "test-e9e28.appspot.com",
+		messagingSenderId: "309539995990"
+	  };
+	  firebase.initializeApp(config);
+	</script>
   </head>
   <body>
 	<p id="Group"></p>
-	<script>
-		var s = window.location.search.substring(7);
-		document.getElementById("Group").innerHTML = "Your Group ID is: " + s;
-	</script>
 
     <!--Add buttons to initiate auth sequence and sign out-->
     <button id="authorize_button" style="display: none;">Authorize</button>
     <button id="signout_button" style="display: none;">Sign Out</button>
 
     <pre id="content" style="white-space: pre-wrap;"></pre>
-
+	
+	<script>
+		var s = window.location.search.substring(7);
+		document.getElementById("Group").innerHTML = "Your Group ID is: " + s;
+	</script>
+	
     <script type="text/javascript">
       // Client ID and API key from the Developer Console
       var CLIENT_ID = '94285525800-hlb6lmdi6s6qv46a3oidrt9o66ujm0j0.apps.googleusercontent.com';
@@ -111,6 +126,14 @@
        * appropriate message is printed.
        */
       function listEvents() {
+		// Get a reference to the database service
+		var groupID = window.location.search.substring(7);
+		
+		firebase.database().ref().child('Group'+groupID).set({
+			"id" : groupID
+		});
+		appendPre(firebase.database().ref().child('Group'+groupID).;
+		
 		var dMin = new Date();
 		dMin.setDate(1);
 		dMin.setHours(0);
@@ -139,10 +162,10 @@
               if (!when) {
                 when = event.start.date;
               }
-              appendPre(event.summary + ' (' + when + ')');
+              //appendPre(event.summary + ' (' + when + ')');
             }
           } else {
-            appendPre('No events found.');
+            //appendPre('No events found.');
           }
         });
       }
