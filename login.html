@@ -129,10 +129,26 @@
 		// Get a reference to the database service
 		var groupID = window.location.search.substring(7);
 		
-		firebase.database().ref().child('Group'+groupID).set({
-			"id" : groupID
+		var fdref=firebase.database().ref();
+		
+		let flag=true;
+		
+		fdref.on('value',function(snapshot){
+			snapshot.forEach(function(childSnapshot){
+				//appendPre(parseInt(childSnapshot.child("id").val())+' '+groupID);
+				if (childSnapshot.child("id").val()==groupID) {
+					flag=false;
+					//appendPre("exist");
+				}
+			});
+			if (flag) {
+				fdref.child('Group'+groupID).set({
+					id : groupID
+				});
+				for (let i=0;i<744;i++) fdref.child('Group'+groupID).child(i).set({ val:0 });
+				appendPre("Add new Group successfully");
+			}
 		});
-		appendPre(firebase.database().ref().child('Group'+groupID).;
 		
 		var dMin = new Date();
 		dMin.setDate(1);
@@ -153,16 +169,43 @@
           'orderBy': 'startTime'
         }).then(function(response) {
           var events = response.result.items;
-          appendPre('Events:');
 
           if (events.length > 0) {
             for (i = 0; i < events.length; i++) {
               var event = events[i];
-              var when = event.start.dateTime;
-              if (!when) {
-                when = event.start.date;
+              var whenS = event.start.dateTime;
+			  var whenE = event.end.dateTime;
+			  
+			  var dS,dE;
+			  
+			  var hS=0,hE=0;
+			  
+              if (!whenS) {
+				whenS=event.start.date;
+				whenE=event.end.date;
+				dS = new Date(whenS);
+				dE = new Date(whenE);
+				hS = dS.getDate()*24;
+				hE = dE.getDate()*24-1;
               }
-              //appendPre(event.summary + ' (' + when + ')');
+              else {
+				var dS = new Date(whenS);
+				var dE = new Date(whenE);
+				
+				hS = (dS.getDate()-1)*24 + dS.getHours();
+				hE = (dE.getDate()-1)*24 + dE.getHours();
+				if (dE.getMinutes()==0) hE--;
+			  }
+			  
+			  //appendPre(whenS+" "+hS+ " ### " +whenE+" "+hE);
+			  for (j=parseInt(hS);j<=parseInt(hE);j++) {
+				var temp = fdref.child('Group'+groupID).child(j).child('val').transaction(function(currentClicks) {
+					return (currentClicks+1);
+				});
+			  }
+				//fdref.child('Group'+groupID).child(i).set("val":temp);
+				
+			  
             }
           } else {
             //appendPre('No events found.');
