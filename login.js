@@ -180,7 +180,7 @@
 
 						  for (j=parseInt(hS);j<=parseInt(hE);j++) {
 							var temp = fdref.child('Group'+groupID).child(j).child('val').transaction(function(currentClicks) {
-								return (currentClicks+1);
+								return (currentClicks || 0) + 1;
 							});
 						  }
 						}
