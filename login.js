@@ -13,6 +13,7 @@
 
       var authorizeButton = document.getElementById('authorize_button');
       var signoutButton = document.getElementById('signout_button');
+	  var emailbox = document.getElementById('emailbox');
 
       /**
        *  On load, called to load the auth2 library and API client library.
@@ -53,10 +54,13 @@
         if (isSignedIn) {
           authorizeButton.style.display = 'none';
           signoutButton.style.display = 'block';
+		  emailbox.style.display = 'none';
+		  
           listEvents();
         } else {
           authorizeButton.style.display = 'block';
           signoutButton.style.display = 'none';
+		  emailbox.style.display = 'block';
         }
       }
 
@@ -95,81 +99,96 @@
       function listEvents() {
 		// Get a reference to the database service
 		var groupID = window.location.search.substring(7);
+		var userEmail=emailbox.value;
+		var userEmailID=userEmail.substring(0,userEmail.indexOf("@"));
 		
 		var fdref=firebase.database().ref();
 		
-		let flag=true;
-		
-		fdref.on('value',function(snapshot){
-			snapshot.forEach(function(childSnapshot){
-				//appendPre(parseInt(childSnapshot.child("id").val())+' '+groupID);
-				if (childSnapshot.child("id").val()==groupID) {
-					flag=false;
-					//appendPre("exist");
-				}
-			});
-			if (flag) {
+		fdref.child('Group'+groupID).once('value',function(snapshot){
+			if (snapshot.val() === null) {
 				fdref.child('Group'+groupID).set({
-					id : groupID
+					numberOfUsers : 0
 				});
 				for (let i=0;i<744;i++) fdref.child('Group'+groupID).child(i).set({ val:0 });
-				appendPre("Add new Group successfully");
+				appendPre("Add new group successfully");
 			}
+			else {
+				//appendPre("exist");
+			}
+			
+			fdref.child('Group'+groupID).child(userEmailID).once('value',function(snapshot){
+				if (snapshot.val() === null) {
+					var temp = fdref.child('Group'+groupID).child('numberOfUsers').transaction(function(currentClicks) {
+							return (currentClicks+1);
+					});
+					
+					fdref.child('Group'+groupID).child(userEmailID).set({
+						email : userEmail
+					});
+					appendPre("Registered successfully");
+					
+					var dMin = new Date();
+					dMin.setDate(1);
+					dMin.setHours(0);
+					dMin.setMinutes(0);
+					var dMax = new Date();
+					dMax.setMonth(dMax.getMonth()+1);
+					dMax.setDate(1);
+					dMax.setHours(0);
+					dMax.setMinutes(0);
+					
+					gapi.client.calendar.events.list({
+					  'calendarId': 'primary',
+					  'timeMin': (dMin).toISOString(),
+					  'timeMax': (dMax).toISOString(),
+					  'showDeleted': false,
+					  'singleEvents': true,
+					  'orderBy': 'startTime'
+					}).then(function(response) {
+					  var events = response.result.items;
+
+					  if (events.length > 0) {
+						for (i = 0; i < events.length; i++) {
+						  var event = events[i];
+						  var whenS = event.start.dateTime;
+						  var whenE = event.end.dateTime;
+						  
+						  var dS,dE,hS,hE;
+						  
+						  if (!whenS) {
+							whenS=event.start.date;
+							whenE=event.end.date;
+							dS = new Date(whenS);
+							dE = new Date(whenE);
+							hS = dS.getDate()*24;
+							hE = dE.getDate()*24-1;
+						  }
+						  else {
+							var dS = new Date(whenS);
+							var dE = new Date(whenE);
+							
+							hS = (dS.getDate()-1)*24 + dS.getHours();
+							hE = (dE.getDate()-1)*24 + dE.getHours();
+							if (dE.getMinutes()==0) hE--;
+						  }
+						  
+						  for (j=parseInt(hS);j<=parseInt(hE);j++) {
+							var temp = fdref.child('Group'+groupID).child(j).child('val').transaction(function(currentClicks) {
+								return (currentClicks+1);
+							});
+						  }
+						}
+					  } else {
+						//appendPre('No events found.');
+					  }
+					});
+				}
+				else {
+					//appendPre("Already registered");
+				}
+			});
+			
 		});
 		
-		var dMin = new Date();
-		dMin.setDate(1);
-		dMin.setHours(0);
-		dMin.setMinutes(0);
-		var dMax = new Date();
-		dMax.setMonth(dMax.getMonth()+1);
-		dMax.setDate(1);
-		dMax.setHours(0);
-		dMax.setMinutes(0);
 		
-        gapi.client.calendar.events.list({
-          'calendarId': 'primary',
-          'timeMin': (dMin).toISOString(),
-		  'timeMax': (dMax).toISOString(),
-          'showDeleted': false,
-          'singleEvents': true,
-          'orderBy': 'startTime'
-        }).then(function(response) {
-          var events = response.result.items;
-
-          if (events.length > 0) {
-            for (i = 0; i < events.length; i++) {
-              var event = events[i];
-              var whenS = event.start.dateTime;
-			  var whenE = event.end.dateTime;
-			  
-			  var dS,dE,hS,hE;
-			  
-              if (!whenS) {
-				whenS=event.start.date;
-				whenE=event.end.date;
-				dS = new Date(whenS);
-				dE = new Date(whenE);
-				hS = dS.getDate()*24;
-				hE = dE.getDate()*24-1;
-              }
-              else {
-				var dS = new Date(whenS);
-				var dE = new Date(whenE);
-				
-				hS = (dS.getDate()-1)*24 + dS.getHours();
-				hE = (dE.getDate()-1)*24 + dE.getHours();
-				if (dE.getMinutes()==0) hE--;
-			  }
-			  
-			  for (j=parseInt(hS);j<=parseInt(hE);j++) {
-				var temp = fdref.child('Group'+groupID).child(j).child('val').transaction(function(currentClicks) {
-					return (currentClicks+1);
-				});
-			  }
-            }
-          } else {
-            //appendPre('No events found.');
-          }
-        });
       }
