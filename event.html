@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Get Together</title>
+    <meta charset="utf-8" />
+
+	<script src="https://www.gstatic.com/firebasejs/5.8.2/firebase.js"></script>
+	<script src="firebase.js"></script>
+  </head>
+  <body>
+	<pre id="content" style="white-space: pre-wrap;"></pre>
+  
+	<script src="event.js" type="text/javascript"></script>
+	
+	<script>
+	
+		var fdref=firebase.database().ref();
+		fdref.child('CurrentGroupID').once('value',function(snapshot){
+			var groupID=snapshot.val();
+			var s=window.location.search;
+			Event=s.substring(7,s.indexOf('&'));
+			Time=s.substring(s.indexOf('&')+10);
+			appendPre(Event+" "+Time);
+			fdref.child('Event').child(Event).set({
+				Duration:Time
+			});
+			
+			var neo = 0;
+			var d = new Date();
+			var month = new Array();
+			month[0] = "January";
+			month[1] = "February";
+			month[2] = "March";
+			month[3] = "April";
+			month[4] = "May";
+			month[5] = "June";
+			month[6] = "July";
+			month[7] = "August";
+			month[8] = "September";
+			month[9] = "October";
+			month[10] = "November";
+			month[11] = "December";
+			var Month = month[d.getMonth()];
+			
+			var flag = false;
+			
+			for(let i=0;i<744;i++)
+			fdref.child('Group'+groupID).child(i).once('value',function(snapTime){
+				if (snapTime.val().val==0) neo++;
+				else neo=0;
+				if (neo>=Time) {
+					var tempTime=i-Time+1;
+					var Day = Math.floor((tempTime-1)/24)+1+1;
+					var Hour = (tempTime-1)%24+1;
+					if (!flag) {
+						flag=true;
+						appendPre("Some good time to start the event: ");
+					}
+					appendPre(" - "+Month+" "+Day+" at "+Hour+":00");
+				}
+			});
+		});
+		
+	</script>
+  </body>
+</html>

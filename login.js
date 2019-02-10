@@ -52,17 +52,16 @@
        */
       function updateSigninStatus(isSignedIn) {
         if (isSignedIn) {
-					authorizeButton.style.display = 'none';
-          signoutButton.style.display = 'none';
-					create_event.style.display = 'block';
-          signoutButton.style.display = 'block';
-		  		emailbox.style.display = 'none';
-
-          listEvents();
+			authorizeButton.style.display = 'none';
+			signoutButton.style.display = 'block';
+			emailbox.style.display = 'none';
+			create_event.style.display = 'block';
+			listEvents();
         } else {
-          authorizeButton.style.display = 'block';
-          signoutButton.style.display = 'none';
-		  emailbox.style.display = 'block';
+			authorizeButton.style.display = 'block';
+			signoutButton.style.display = 'none';
+			emailbox.style.display = 'block';
+			create_event.style.display = 'none';
         }
       }
 
@@ -103,8 +102,13 @@
 		var groupID = window.location.search.substring(7);
 		var userEmail=emailbox.value;
 		var userEmailID=userEmail.substring(0,userEmail.indexOf("@"));
+		var userEmailID=userEmailID.replace(".","");
 
 		var fdref=firebase.database().ref();
+		
+		fdref.set({'CurrentGroupID':groupID});
+		
+		//fdref.child('CurrentGroupID').set({'val':groupID});
 
 		fdref.child('Group'+groupID).once('value',function(snapshot){
 			if (snapshot.val() === null) {

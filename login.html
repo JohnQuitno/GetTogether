@@ -13,17 +13,21 @@
 
     <!--Add buttons to initiate auth sequence and sign out-->
     <div align="center">
-    <input id="emailbox" type="text" name="email" placeholder="Input your email address.." style="display: none;"/>
-    <button id="authorize_button" style="display: none;">Authorize</button>
-    <form id="create_event" style="display: none;">
+  <input id="emailbox" type="text" name="email" placeholder="Input your email address.." style="display: none;"/>
+ 
+    <button id="authorize_button" style="display: none;">Authorize / Sign in</button>
+    </div>
+	
+    <form action="event.html" id="create_event" style="display: none;">
       <h3>Create an event?</h3>
-      <input type="text" name="Event" placeholder="Name your Event"/>
+      <input type="text" name="Event" placeholder="Enter your Event"/>
       <br>
-      <input type="number" name="Duration" placeholder="How long is your event (in hours)?"/>
+      <input type="number" name="Duration" placeholder="How long does it take?"/>
       <br>
-      <input type="submit" value="Submit"/>
+      <input type="submit" id="createBtn"></input>
     </form>
-    <button id="signout_button" style="display: none;">Sign Out</button>
+    <div align="center">
+      <button id="signout_button" style="display: none;">Sign Out</button>
     </div>
     <pre id="content" style="white-space: pre-wrap;"></pre>
 
