@@ -26,7 +26,7 @@
        *  Initializes the API client library and sets up sign-in state
        *  listeners.
        */
-	   
+
       function initClient() {
         gapi.client.init({
           apiKey: API_KEY,
@@ -52,10 +52,12 @@
        */
       function updateSigninStatus(isSignedIn) {
         if (isSignedIn) {
-          authorizeButton.style.display = 'none';
+					authorizeButton.style.display = 'none';
+          signoutButton.style.display = 'none';
+					create_event.style.display = 'block';
           signoutButton.style.display = 'block';
-		  emailbox.style.display = 'none';
-		  
+		  		emailbox.style.display = 'none';
+
           listEvents();
         } else {
           authorizeButton.style.display = 'block';
@@ -101,9 +103,9 @@
 		var groupID = window.location.search.substring(7);
 		var userEmail=emailbox.value;
 		var userEmailID=userEmail.substring(0,userEmail.indexOf("@"));
-		
+
 		var fdref=firebase.database().ref();
-		
+
 		fdref.child('Group'+groupID).once('value',function(snapshot){
 			if (snapshot.val() === null) {
 				fdref.child('Group'+groupID).set({
@@ -115,18 +117,18 @@
 			else {
 				//appendPre("exist");
 			}
-			
+
 			fdref.child('Group'+groupID).child(userEmailID).once('value',function(snapshot){
 				if (snapshot.val() === null) {
 					var temp = fdref.child('Group'+groupID).child('numberOfUsers').transaction(function(currentClicks) {
 							return (currentClicks+1);
 					});
-					
+
 					fdref.child('Group'+groupID).child(userEmailID).set({
 						email : userEmail
 					});
 					appendPre("Registered successfully");
-					
+
 					var dMin = new Date();
 					dMin.setDate(1);
 					dMin.setHours(0);
@@ -136,7 +138,7 @@
 					dMax.setDate(1);
 					dMax.setHours(0);
 					dMax.setMinutes(0);
-					
+
 					gapi.client.calendar.events.list({
 					  'calendarId': 'primary',
 					  'timeMin': (dMin).toISOString(),
@@ -152,9 +154,9 @@
 						  var event = events[i];
 						  var whenS = event.start.dateTime;
 						  var whenE = event.end.dateTime;
-						  
+
 						  var dS,dE,hS,hE;
-						  
+
 						  if (!whenS) {
 							whenS=event.start.date;
 							whenE=event.end.date;
@@ -166,12 +168,12 @@
 						  else {
 							var dS = new Date(whenS);
 							var dE = new Date(whenE);
-							
+
 							hS = (dS.getDate()-1)*24 + dS.getHours();
 							hE = (dE.getDate()-1)*24 + dE.getHours();
 							if (dE.getMinutes()==0) hE--;
 						  }
-						  
+
 						  for (j=parseInt(hS);j<=parseInt(hE);j++) {
 							var temp = fdref.child('Group'+groupID).child(j).child('val').transaction(function(currentClicks) {
 								return (currentClicks+1);
@@ -187,8 +189,8 @@
 					//appendPre("Already registered");
 				}
 			});
-			
+
 		});
-		
-		
+
+
       }
