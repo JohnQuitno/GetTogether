@@ -1,5 +1,5 @@
 	  var s = window.location.search.substring(7);
-	  document.getElementById("Group").innerHTML = "Your Group ID is: " + s;
+	  document.getElementById("Group").innerHTML = "Group ID: " + s;
       // Client ID and API key from the Developer Console
       var CLIENT_ID = '94285525800-hlb6lmdi6s6qv46a3oidrt9o66ujm0j0.apps.googleusercontent.com';
       var API_KEY = 'AIzaSyAaD_twdf0aIdxngcwADINk0GFfiCPOuwM';
