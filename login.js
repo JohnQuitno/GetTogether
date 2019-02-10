@@ -122,13 +122,13 @@
 				//appendPre("exist");
 			}
 
-			fdref.child('Group'+groupID).child(userEmailID).once('value',function(snapshot){
+			fdref.child('Group'+groupID).child('Users').child(userEmailID).once('value',function(snapshot){
 				if (snapshot.val() === null) {
 					var temp = fdref.child('Group'+groupID).child('numberOfUsers').transaction(function(currentClicks) {
 							return (currentClicks+1);
 					});
 
-					fdref.child('Group'+groupID).child(userEmailID).set({
+					fdref.child('Group'+groupID).child('Users').child(userEmailID).set({
 						email : userEmail
 					});
 					appendPre("Registered successfully");
