@@ -15,21 +15,34 @@
   
 	<script src="event.js" type="text/javascript"></script>
 	
-	<script>
-	
+	<script>		
+		function IdealTime(h,t)
+		{
+			//appendPre(h+" "+t);
+			return (h>=8 && (h+t)<=18);
+		}
 		var fdref=firebase.database().ref();
-		fdref.child('CurrentGroupID').once('value',function(snapshot){
+		fdref.child('CurrentGroupID').child('val').once('value',function(snapshot){
 			var groupID=snapshot.val();
 			var s=window.location.search;
 			Event=s.substring(7,s.indexOf('&'));
-			Time=s.substring(s.indexOf('&')+10);
-			appendPre(Event+" "+Time);
+			Time=parseInt(s.substring(s.indexOf('&')+10));
 			fdref.child('Event').child(Event).set({
 				Duration:Time
 			});
 			
 			var neo = 0;
 			var d = new Date();
+			var dMax = new Date();
+			dMax.setMonth(dMax.getMonth()+1);
+			dMax.setDate(0);
+			dMax.setHours(0);
+			dMax.setMinutes(0);
+			
+			var startTime = (d.getDate()-1)*24+d.getHours();
+			var endTime = dMax.getDate()*24-1;
+			
+			
 			var month = new Array();
 			month[0] = "January";
 			month[1] = "February";
@@ -44,23 +57,29 @@
 			month[10] = "November";
 			month[11] = "December";
 			var Month = month[d.getMonth()];
+			var Count = 0;
+			var Top = 0;
+			var Stack = new Array();
 			
-			var flag = false;
-			
-			for(let i=0;i<744;i++)
+			for(let i=startTime;i<=endTime;i++)
 			fdref.child('Group'+groupID).child(i).once('value',function(snapTime){
 				if (snapTime.val().val==0) neo++;
 				else neo=0;
 				if (neo>=Time) {
 					var tempTime=i-Time+1;
-					var Day = Math.floor((tempTime-1)/24)+1+1;
-					var Hour = (tempTime-1)%24+1;
-					if (!flag) {
-						flag=true;
+					var Day = Math.floor((tempTime-1)/24)+1;
+					var Hour = tempTime%24;
+					//appendPre(tempTime+" "+Hour);
+					
+					if (IdealTime(Hour,Time)){
+						if (Count<10){
+							Count++;
+							appendPre(" - "+Month+" "+Day+" at "+Hour+":00");
+						}
 					}
-					appendPre(" - "+Month+" "+Day+" at "+Hour+":00");
 				}
 			});
+			
 		});
 		
 	</script>

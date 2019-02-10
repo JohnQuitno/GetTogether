@@ -106,9 +106,9 @@
 
 		var fdref=firebase.database().ref();
 		
-		fdref.set({'CurrentGroupID':groupID});
+		//fdref.set({'CurrentGroupID':groupID}); WHY THIS LINE OF CODE RESET ALL THE DATA
 		
-		//fdref.child('CurrentGroupID').set({'val':groupID});
+		fdref.child('CurrentGroupID').set({'val':groupID});
 
 		fdref.child('Group'+groupID).once('value',function(snapshot){
 			if (snapshot.val() === null) {
@@ -179,7 +179,7 @@
 						  }
 
 						  for (j=parseInt(hS);j<=parseInt(hE);j++) {
-							var temp = fdref.child('Group'+groupID).child(j).child('val').transaction(function(currentClicks) {
+							var temp2 = fdref.child('Group'+groupID).child(j).child('val').transaction(function(currentClicks) {
 								return (currentClicks + 1);
 							});
 						  }
